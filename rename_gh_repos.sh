@@ -14,8 +14,17 @@ gh repo list -L 110 > ./gh_repos.txt
 # Specify filepath of our list of repos;
 repolist="./gh_repos.txt"
 
+# We will look for this substring in each line (i.e. repo name), because all of
+# of my Python repo names used to end in ".py";
+substring=".py"
+
 # Verify our repolist exists;
 if [ -f "$repolist" ]; then
     # Open the file and read it line by line;
     while IFS= read -r line; do
-        # 
+        # Look for our substring inside of every line (i.e. repo name);
+        if [[ $line == *"$substring"* ]]; then
+            # Trim the trailing whitespaces, etc. to leave only "blue-slushy9/<repo-name>";
+            $trim_line="${trim_line%"$trim_line##*[![:space:]]}"}"
+            # DEBUG
+            echo "$trim_line"
