@@ -51,4 +51,9 @@ if [ -f "$repolist2" ]; then
     # Open the file and read it line by line, until source is exhausted;
     while IFS= read -r line; do
         old_name="$line"
-        new_name=
+        # First we drop the ".py";
+        new_name="${old_name%*(.py)}"
+        # DEBUG
+        echo "$new_name"
+    done < "$repolist2"
+fi
