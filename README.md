@@ -1,0 +1,1 @@
+# bash-rename-gh-repos
