@@ -39,7 +39,7 @@ if [ -f "$repolist1" ]; then
     done < "$repolist1"
 fi
 
-# We need to assign out new repolist to a variable to use it in our next loop;
+# We need to assign our new repolist to a variable to use it in our next loop;
 repolist2="./gh_repos2.txt"
 
 # Next we loop through each line (i.e. repo name) in our second list, and we insert the repo name
@@ -48,12 +48,13 @@ command="gh repo rename -R blue-slushy9/$old_name $new_name"
 
 # Verify our second repolist exists;
 if [ -f "$repolist2" ]; then
-    # Open the file and read it line by line, until source is exhausted;
+    # Open the repolist and read it line by line, until source is exhausted;
     while IFS= read -r line; do
         old_name="$line"
         # First we drop the ".py";
-        new_name="${old_name%*(.py)}"
-        # DEBUG
+        #new_name="${old_name%*(.py)}"
+	new_name=$(echo "$old_name" | cut -d '.' -f 1)
+	# DEBUG
         echo "$new_name"
     done < "$repolist2"
 fi
