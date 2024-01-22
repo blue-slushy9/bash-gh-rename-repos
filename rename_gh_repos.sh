@@ -16,16 +16,16 @@ gh repo list -L 110 | awk '{print $1}' > ./gh_repos1.txt
 # Specify filepath of our list of repos;
 repolist1="./gh_repos1.txt"
 
-# We will look for this substring in each line (i.e. repo name), because all of
+# We will look for this suffix in each line (i.e. repo name), because all of
 # of my Python repo names used to end in ".py";
-substring=".py"
+suffix=".py"
 
 # Verify our repolist exists;
 if [ -f "$repolist1" ]; then
     # Open the file and read it line by line, until source is exhausted;
     while IFS= read -r line; do
-        # Look for our substring inside of every line (i.e. repo name);
-        if [[ $line == *"$substring"* ]]; then
+        # Look for our suffix inside of every line (i.e. repo name);
+        if [[ $line == *"$suffix"* ]]; then
             # Trim anything before the "/", inclusive;
             trim_line="${line#*/}"
             # Then trim everything after the ".py";
@@ -42,6 +42,15 @@ fi
 # We need to assign our new repolist to a variable to use it in our next loop;
 repolist2="./gh_repos2.txt"
 
+# The old repo names contain underscores, new format uses dashes;
+underscore="_"
+
+# We will replace all underscores in the old repo names with dashes;
+dash="-"
+
+# We will add this prefix to all of the repo names that used to end in ".py";
+prefix="py-"
+
 # Next we loop through each line (i.e. repo name) in our second list, and we insert the repo name
 # into our GitHub CLI command that will rename it into the standard format I have developed;
 command="gh repo rename -R blue-slushy9/$old_name $new_name"
@@ -50,11 +59,22 @@ command="gh repo rename -R blue-slushy9/$old_name $new_name"
 if [ -f "$repolist2" ]; then
     # Open the repolist and read it line by line, until source is exhausted;
     while IFS= read -r line; do
-        old_name="$line"
-        # First we drop the ".py";
+        # The old name is exactly as it appears on each line;
+	old_name="$line"
+        # To update the repo names, first we drop the ".py";
         #new_name="${old_name%*(.py)}"
 	new_name=$(echo "$old_name" | cut -d '.' -f 1)
 	# DEBUG
         echo "$new_name"
+	# Next we replace the underscores with dashes;
+	new_name=$(echo "$new_name" | tr "$underscore" "$dash")
+	# DEBUG
+	echo "$new_name"
+	# Finally we add "py-" to the beginning; 
+	new_name="$prefix$new_name"
+	# DEBUG
+	echo "$new_name"
+	# DEBUG
+	#echo "$command"
     done < "$repolist2"
 fi
