@@ -53,7 +53,7 @@ prefix="py-"
 
 # Next we loop through each line (i.e. repo name) in our second list, and we insert the repo name
 # into our GitHub CLI command that will rename it into the standard format I have developed;
-command="gh repo rename -R blue-slushy9/$old_name $new_name"
+#command="gh repo rename -R blue-slushy9/$old_name $new_name"
 
 # Verify our second repolist exists;
 if [ -f "$repolist2" ]; then
@@ -65,16 +65,20 @@ if [ -f "$repolist2" ]; then
         #new_name="${old_name%*(.py)}"
 	new_name=$(echo "$old_name" | cut -d '.' -f 1)
 	# DEBUG
-        echo "$new_name"
+        #echo "$new_name"
 	# Next we replace the underscores with dashes;
 	new_name=$(echo "$new_name" | tr "$underscore" "$dash")
 	# DEBUG
-	echo "$new_name"
+	#echo "$new_name"
 	# Finally we add "py-" to the beginning; 
 	new_name="$prefix$new_name"
 	# DEBUG
-	echo "$new_name"
+	#echo "$new_name"
+	# NOT best practice, but couldn't get it to work outside of the function;
+	command="gh repo rename -R blue-slushy9/$old_name $new_name"
 	# DEBUG
 	#echo "$command"
+	# Finally, we run the command;
+	eval "$command"
     done < "$repolist2"
 fi
