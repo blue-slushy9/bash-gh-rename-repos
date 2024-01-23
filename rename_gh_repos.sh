@@ -10,9 +10,6 @@
 # we do not need the repo metadata, only the names;
 gh repo list -L 110 | awk '{print $1}' > ./gh_repos1.txt
 
-# Next we go through each line in our text file and see if it contains ".py",
-# as it is primarily Python repos which I will be renaming;
-
 # Specify filepath of our list of repos;
 repolist1="./gh_repos1.txt"
 
@@ -22,21 +19,20 @@ suffix=".py"
 
 # Verify our repolist exists;
 if [ -f "$repolist1" ]; then
-    # Open the file and read it line by line, until source is exhausted;
+    # Open the repolist and read it line by line, until all entries are exhausted;
     while IFS= read -r line; do
         # Look for our suffix inside of every line (i.e. repo name);
         if [[ $line == *"$suffix"* ]]; then
             # Trim anything before the "/", inclusive;
             trim_line="${line#*/}"
-            # Then trim everything after the ".py";
-            #echo "${line%%*(.py)}"
-            #trim_line="${line%*(.py)}"
-            
             # Output the trimmed line (i.e. repo name) to our final list;
+            # >> means append versus overwrite (>);
             echo "$trim_line" >> gh_repos2.txt
         fi
-    # Redirects the input of the while loop to come from a specified file, e.g. our repolist;    
+    # done signifies end of while loop;
+    # < redirects the input of the while loop to come from a specified file, e.g. our repolist;  
     done < "$repolist1"
+# Signifies end of if statement;
 fi
 
 # We need to assign our new repolist to a variable to use it in our next loop;
@@ -51,34 +47,29 @@ dash="-"
 # We will add this prefix to all of the repo names that used to end in ".py";
 prefix="py-"
 
-# Next we loop through each line (i.e. repo name) in our second list, and we insert the repo name
-# into our GitHub CLI command that will rename it into the standard format I have developed;
-#command="gh repo rename -R blue-slushy9/$old_name $new_name"
-
 # Verify our second repolist exists;
 if [ -f "$repolist2" ]; then
-    # Open the repolist and read it line by line, until source is exhausted;
+    # Open the repolist and read it line by line, until all entries are exhausted;
     while IFS= read -r line; do
         # The old name is exactly as it appears on each line;
-	old_name="$line"
-        # To update the repo names, first we drop the ".py";
-        #new_name="${old_name%*(.py)}"
-	new_name=$(echo "$old_name" | cut -d '.' -f 1)
-	# DEBUG
-        #echo "$new_name"
-	# Next we replace the underscores with dashes;
-	new_name=$(echo "$new_name" | tr "$underscore" "$dash")
-	# DEBUG
-	#echo "$new_name"
-	# Finally we add "py-" to the beginning; 
-	new_name="$prefix$new_name"
-	# DEBUG
-	#echo "$new_name"
-	# NOT best practice, but couldn't get it to work outside of the function;
-	command="gh repo rename -R blue-slushy9/$old_name $new_name"
-	# DEBUG
-	#echo "$command"
-	# Finally, we run the command;
-	eval "$command"
+	    old_name="$line"
+        # To update the repo names, first we drop the ".py"; to do this, we pipe the old name
+        # into the cut function with the delimiter '.' and -f 1, meaning the first field,
+        # i.e. everything before the first instance of '.' is what we keep;
+	    new_name=$(echo "$old_name" | cut -d '.' -f 1)
+	    # Next we replace the underscores with dashes;
+	    new_name=$(echo "$new_name" | tr "$underscore" "$dash")
+	    # Finally we add "py-" to the beginning; 
+	    new_name="$prefix$new_name"
+	    # Our command string has to be defined inside of the while loop in order to define
+        # the name variables with each successive line of our repolist2;
+	    command="gh repo rename -R blue-slushy9/$old_name $new_name"
+	    # Finally, we run our command string as a bash/gh command with eval;
+	    eval "$command"
+    # Redirects the input of the while loop to come from a specified file, e.g. our repolist;
     done < "$repolist2"
+# Signifies end of if statement;
 fi
+
+# Clean up the two text files that get created in the process of running this script;
+rm -f "$repolist1" "$repolist2"
