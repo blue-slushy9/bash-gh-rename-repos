@@ -52,20 +52,20 @@ if [ -f "$repolist2" ]; then
     # Open the repolist and read it line by line, until all entries are exhausted;
     while IFS= read -r line; do
         # The old name is exactly as it appears on each line;
-	old_name="$line"
+	    old_name="$line"
         # To update the repo names, first we drop the ".py"; to do this, we pipe the old name
         # into the cut function with the delimiter '.' and -f 1, meaning the first field,
         # i.e. everything before the first instance of '.' is what we keep;
-	new_name=$(echo "$old_name" | cut -d '.' -f 1)
-	# Next we replace the underscores with dashes;
-	new_name=$(echo "$new_name" | tr "$underscore" "$dash")
-	# Finally we add "py-" to the beginning; 
-	new_name="$prefix$new_name"
-	# Our command string has to be defined inside of the while loop in order to define
+	    new_name=$(echo "$old_name" | cut -d '.' -f 1)
+	    # Next we replace the underscores with dashes;
+	    new_name=$(echo "$new_name" | tr "$underscore" "$dash")
+	    # Finally we add "py-" to the beginning; 
+	    new_name="$prefix$new_name"
+	    # Our command string has to be defined inside of the while loop in order to define
         # the name variables with each successive line of our repolist2;
-	command="gh repo rename -R blue-slushy9/$old_name $new_name"
-	# Finally, we run our command string as a bash/gh command with eval;
-	eval "$command"
+	    command="gh repo rename -R blue-slushy9/$old_name $new_name"
+	    # Finally, we run our command string as a bash/gh command with eval;
+	    eval "$command"
     # Redirects the input of the while loop to come from a specified file, e.g. our repolist;
     done < "$repolist2"
 # Signifies end of if statement;
